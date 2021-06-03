@@ -23,8 +23,8 @@ Latency distribution:{{ range .LatencyDistribution }}
 `
 
 	csvTmpl = `
-duration (ms),status,error{{ range $i, $v := .Details }}
-{{ formatMilli .Latency.Seconds }},{{ .Status }},{{ .Error }}{{ end }}
+timestamp (ns),duration (ms),status,error{{ range $i, $v := .Details }}
+{{formatDatenano .Timestamp}},{{ formatMilli .Latency.Seconds }},{{ .Status }},{{ .Error }}{{ end }}
 `
 
 	htmlTmpl = `

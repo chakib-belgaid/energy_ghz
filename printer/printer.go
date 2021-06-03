@@ -286,6 +286,7 @@ var tmplFuncMap = template.FuncMap{
 	"formatErrorDist":  formatErrorDist,
 	"formatDate":       formatDate,
 	"formatNanoUnit":   formatNanoUnit,
+	"formatDatenano":   formatDatenano,
 }
 
 func jsonify(v interface{}, pretty bool) string {
@@ -323,6 +324,11 @@ func formatMilli(duration float64) string {
 
 func formatDate(d time.Time) string {
 	return d.Format("Mon Jan _2 2006 @ 15:04:05")
+}
+
+func formatDatenano(d time.Time) string {
+
+	return fmt.Sprintf("%v", d.UnixNano())
 }
 
 func formatSeconds(duration float64) string {
