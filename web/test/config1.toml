@@ -1,2 +1,3 @@
 [database]
 type = "sqlite3"
+Connection = "db.sqlite3"

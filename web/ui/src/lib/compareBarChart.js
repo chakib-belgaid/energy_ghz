@@ -3,16 +3,16 @@ import Chart from 'chart.js'
 
 import { formatDiv } from '../lib/common'
 
-export function createComparisonChart (report1, report2, color1, color2) {
+export function createComparisonChart(report1, report2, color1, color2) {
   const color = Chart.helpers.color
 
   const report1Name = report1.name
     ? `${report1.name} [ID: ${report1.id}]`
-    : `Report: ${report1.id}`
+    : `Report: ${report1.language}`
 
   const report2Name = report2.name
     ? `${report2.name} [ID: ${report2.id}]`
-    : `Report: ${report2.id}`
+    : `Report: ${report2.language}`
 
   const report1Latencies = _.keyBy(report1.latencyDistribution, 'percentage')
   const report2Latencies = _.keyBy(report2.latencyDistribution, 'percentage')
@@ -33,7 +33,7 @@ export function createComparisonChart (report1, report2, color1, color2) {
   }
 
   const chartData = {
-    labels: ['Fastest', 'Average', 'Slowest', '10 %', '25 %', '50 %', '75 %', '90 %', '95 %', '99 %'],
+    labels: ['Fastest', 'Average', 'python_grpc_bench', 'Slowest', '10 %', '25 %', '50 %', '75 %', '90 %', '95 %', '99 %'],
     datasets: [{
       label: report1Name,
       backgroundColor: color(color1)
@@ -44,6 +44,7 @@ export function createComparisonChart (report1, report2, color1, color2) {
       data: [
         formatDiv(report1.fastest, divr),
         formatDiv(report1.average, divr),
+        formatDiv(report1.python_grpc_bench, divr),
         formatDiv(report1.slowest, divr),
         formatDiv(report1Latencies['10'].latency, divr),
         formatDiv(report1Latencies['25'].latency, divr),
@@ -63,6 +64,7 @@ export function createComparisonChart (report1, report2, color1, color2) {
       data: [
         formatDiv(report2.fastest, divr),
         formatDiv(report2.average, divr),
+        formatDiv(report2.python_grpc_bench, divr),
         formatDiv(report2.slowest, divr),
         formatDiv(report2Latencies['10'].latency, divr),
         formatDiv(report2Latencies['25'].latency, divr),

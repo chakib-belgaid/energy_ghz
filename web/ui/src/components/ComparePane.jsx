@@ -7,6 +7,8 @@ import _ from 'lodash'
 import {
   formatNanoUnit,
   formatFloat,
+  formatMilliJoules,
+  formatPower,
   toLocaleString
 } from '../lib/common'
 
@@ -18,12 +20,24 @@ import {
 
 import StatusBadge from './StatusBadge'
 
+function renderSwitch(param, value) {
+  switch (param) {
+    case 'floatformat':
+      return formatFloat(value);
+    case 'power':
+      return formatPower(value);
+    case 'energy_per_request':
+      return formatMilliJoules(value);
+    default:
+      return formatNanoUnit(value);
+  }
+}
 export default class ComparePane extends Component {
-  componentDidMount () {
+  componentDidMount() {
     this.props.compareStore.fetchReports(this.props.reportId1, this.props.reportId2)
   }
 
-  render () {
+  render() {
     const { state: { report1, report2 } } = this.props.compareStore
 
     const color1 = colors.orange
@@ -41,11 +55,11 @@ export default class ComparePane extends Component {
 
     const report1Name = report1.name
       ? `${report1.name} [ID: ${report1.id}]`
-      : `Report: ${report1.id}`
+      : `Report: ${report1.tags.language}`
 
     const report2Name = report2.name
       ? `${report2.name} [ID: ${report2.id}]`
-      : `Report: ${report2.id}`
+      : `Report: ${report2.tags.language}`
 
     const config = createComparisonChart(report1, report2, color1, color2)
 
@@ -152,24 +166,49 @@ export default class ComparePane extends Component {
                 label='Total'
                 value1={report1.total}
                 value2={report2.total}
+                floatFormat="time"
+              />
+              <LatencyRow
+                maxWidth={maxWidthLabel}
+                label='Cost of  Request'
+                value1={report1.energy_per_request}
+                value2={report2.energy_per_request}
+                floatFormat="energy_per_request"
+              />
+              <LatencyRow
+                maxWidth={maxWidthLabel}
+                label='Av Power DRAM'
+                value1={report1.DRAM}
+                value2={report2.DRAM}
+                floatFormat="power"
+              />
+              <LatencyRow
+                maxWidth={maxWidthLabel}
+                label='Av Power CPU'
+                value1={report1.CPU}
+                value2={report2.CPU}
+                floatFormat="power"
               />
               <LatencyRow
                 maxWidth={maxWidthLabel}
                 label='Average'
                 value1={report1.average}
                 value2={report2.average}
+                floatFormat="time"
               />
               <LatencyRow
                 maxWidth={maxWidthLabel}
                 label='Fastest'
                 value1={report1.fastest}
                 value2={report2.fastest}
+                floatFormat="time"
               />
               <LatencyRow
                 maxWidth={maxWidthLabel}
                 label='Slowest'
                 value1={report1.slowest}
                 value2={report2.slowest}
+                floatFormat="time"
               />
               <LatencyRow
                 maxWidth={maxWidthLabel}
@@ -177,7 +216,7 @@ export default class ComparePane extends Component {
                 value1={report1.rps}
                 value2={report2.rps}
                 invert
-                floatFormat
+                floatFormat="floatformat"
               />
             </Pane>
           </Pane>
@@ -216,6 +255,7 @@ export default class ComparePane extends Component {
                   label={p.percentage + ' %'}
                   value1={p.latency}
                   value2={latency2[i].latency}
+                  floatFormat="time"
                 />
               ))}
             </Pane>
@@ -253,14 +293,14 @@ const LatencyRow = ({ maxWidth, label, value1, value2, invert, floatFormat }) =>
         <Strong>{label}</Strong>
       </Table.TextCell>
       <Table.TextCell isNumber>
-        {floatFormat ? formatFloat(value1) : formatNanoUnit(value1)}
+        {renderSwitch(floatFormat, value1)}
       </Table.TextCell>
       <Table.TextCell isNumber>
-        {floatFormat ? formatFloat(value2) : formatNanoUnit(value2)}
+        {renderSwitch(floatFormat, value2)}
       </Table.TextCell>
       <Table.TextCell isNumber>
         <Icon icon={changeIcon} color={changeColor} marginRight={8} />
-        {floatFormat ? formatFloat(changeAbs) : formatNanoUnit(changeAbs)} ({formatFloat(changeP)} %)
+        {renderSwitch(floatFormat, changeAbs)} ({formatFloat(changeP)} %)
       </Table.TextCell>
     </Table.Row>
   )

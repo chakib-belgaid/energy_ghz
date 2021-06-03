@@ -10,6 +10,8 @@ import { Link as RouterLink, withRouter } from 'react-router-dom'
 import {
   formatNanoUnit,
   formatFloat,
+  formatMilliJoules,
+  formatPower,
   toLocaleString,
   getAppRoot
 } from '../lib/common'
@@ -22,8 +24,23 @@ import DeleteDialog from './DeleteDialog'
 import HistogramContainer from '../containers/HistogramContainer'
 import OptionsContainer from '../containers/OptionsContainer'
 
+function renderSwitch(param, value) {
+  switch (param) {
+    case 'rps':
+      return formatFloat(value);
+    case 'energy_per_request':
+      return formatMilliJoules(value);
+    case 'CPU':
+      return formatPower(value);
+    case 'DRAM':
+      return formatPower(value);
+    default:
+      return formatNanoUnit(value);
+  }
+}
+
 class ReportDetailPane extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props)
 
     this.state = {
@@ -31,22 +48,22 @@ class ReportDetailPane extends Component {
     }
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.props.compareStore.fetchReports(this.props.reportId, 'previous')
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     if (!this.props.compareStore.state.isFetching &&
       (this.props.reportId !== prevProps.reportId)) {
       this.props.compareStore.fetchReports(this.props.reportId, 'previous')
     }
   }
 
-  async deleteReport () {
+  async deleteReport() {
     this.setState({ deleteVisible: false })
     const currentReport = this.props.compareStore.state.report1
     const id = this.props.reportId
-    const name = currentReport && currentReport.name ? currentReport.name : id
+    const name = currentReport && currentReport.name ? currentReport.name : currentReport.tags.language
 
     const ok = await this.props.reportStore.deleteReport(id)
     if (ok) {
@@ -55,7 +72,7 @@ class ReportDetailPane extends Component {
     }
   }
 
-  render () {
+  render() {
     const currentReport = this.props.compareStore.state.report1
     const prevReport = this.props.compareStore.state.report2
 
@@ -79,13 +96,8 @@ class ReportDetailPane extends Component {
             <Pane display='flex' textAlign='center' alignItems='center'>
               <StatusBadge status={currentReport.status} marginRight={8} />
               <Heading size={600}>
-                {currentReport.name || `REPORT: ${currentReport.id}`}
+                {currentReport.name || `REPORT: ${currentReport.tags.language}`}
               </Heading>
-            </Pane>
-            <Pane marginTop={8}>
-              <Text>
-                {dateStr}
-              </Text>
             </Pane>
             {currentReport.tags && _.keys(currentReport.tags).length
               ? <Pane marginTop={12}>
@@ -119,7 +131,7 @@ class ReportDetailPane extends Component {
                   isShown={this.state.deleteVisible}
                   onConfirm={() => this.deleteReport()}
                   onCancel={() => this.setState({ deleteVisible: !this.state.deleteVisible })}
-                  /> : null}
+                /> : null}
               <Button
                 iconBefore='trash'
                 appearance='minimal'
@@ -153,6 +165,10 @@ class ReportDetailPane extends Component {
             <SummaryPropComponent currentReport={currentReport} previousReport={prevReport} propName='fastest' />
             <SummaryPropComponent currentReport={currentReport} previousReport={prevReport} propName='slowest' />
             <SummaryPropComponent currentReport={currentReport} previousReport={prevReport} propName='rps' />
+            <SummaryPropComponent currentReport={currentReport} previousReport={prevReport} propName='CPU' />
+            <SummaryPropComponent currentReport={currentReport} previousReport={prevReport} propName='DRAM' />
+            <SummaryPropComponent currentReport={currentReport} previousReport={prevReport} propName='energy_per_request' />
+
           </Pane>
 
           <Pane flex={1} marginLeft={30} marginRight={16}>
@@ -245,7 +261,7 @@ class ReportDetailPane extends Component {
                 ))}
               </Pane>
             </Pane>
-            </Pane>
+          </Pane>
           : <Pane />}
 
         <Pane display='flex' alignItems='left' marginTop={32} marginBottom={24}>
@@ -266,11 +282,38 @@ class ReportDetailPane extends Component {
       </Pane>
     )
   }
-}
+};
+
+
+
 
 const SummaryPropComponent = ({ currentReport, previousReport, propName }) => {
+
+
+
+  let label = propName
+
+  if (propName === 'rps') {
+    label = 'Requests Per Second'
+  }
+
+  if (propName === 'CPU') {
+    label = 'Avg Power CPU'
+  }
+
+  if (propName === 'DRAM') {
+    label = 'Avg Power DRAM'
+
+  }
+
+  if (propName === 'energy_per_request') {
+    label = 'Cost of a Single Request '
+  }
+
+
   const crVal = currentReport[propName]
   const prVal = previousReport ? previousReport[propName] : -1
+
   const change = crVal - prVal
   const changeAbs = Math.abs(change)
   const changeP = change > 0
@@ -289,11 +332,6 @@ const SummaryPropComponent = ({ currentReport, previousReport, propName }) => {
       : 'danger'
   }
 
-  let label = propName
-
-  if (propName === 'rps') {
-    label = 'Requests Per Second'
-  }
 
   return (
     <Pane borderBottom paddingY={16}>
@@ -305,21 +343,22 @@ const SummaryPropComponent = ({ currentReport, previousReport, propName }) => {
       <Pane display='flex' paddingTop={8}>
         <Pane flex={2} display='flex'>
           <Text size={500} fontFamily='mono'>
-            {propName === 'rps' ? formatFloat(crVal) : formatNanoUnit(crVal)}
+            {renderSwitch(propName, crVal)}
           </Text>
         </Pane>
         {previousReport
           ? <Pane flex={3} display='flex'>
             <Icon icon={changeIcon} color={changeColor} marginRight={8} />
             <Text fontFamily='mono'>
-              {propName === 'rps' ? formatFloat(changeAbs) : formatNanoUnit(changeAbs)} ({formatFloat(changeP)} %)
+              {renderSwitch(propName, changeAbs)} ({formatFloat(changeP)} %)
             </Text>
-            </Pane>
+          </Pane>
           : <Pane />}
       </Pane>
     </Pane>
   )
-}
+};
+
 
 const LatencyPropComponent = ({ currentReportLD, previousReportLD }) => {
   const crVal = currentReportLD.latency
@@ -356,7 +395,7 @@ const LatencyPropComponent = ({ currentReportLD, previousReportLD }) => {
           <Text fontFamily='mono'>
             {formatNanoUnit(changeAbs)} ({formatFloat(changeP)} %)
           </Text>
-          </Pane>
+        </Pane>
         : <Pane />}
     </Pane>
   )
@@ -376,5 +415,6 @@ const LatencyComponent = ({ currentReport, previousReport }) => {
     </Pane>
   )
 }
+
 
 export default withRouter(ReportDetailPane)

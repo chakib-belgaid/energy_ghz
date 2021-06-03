@@ -8,40 +8,47 @@ import {
   getIconForOrder,
   formatNanoUnit,
   formatFloat,
+  formatMilliJoules,
+  formatPower,
   toLocaleString
 } from '../lib/common'
 
 import StatusBadge from './StatusBadge'
 
 class ReportList extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props)
 
     this.state = {
       projectId: props.projectId || 0,
       ordering: Order.DESC,
-      sort: 'date',
+      sort: 'rps',
       page: 0,
       selected: {},
       selectAllChecked: false,
-      selectedColumnsKeys: ["name", "total", "average", "slowest", "fastest", "rps"],
+      selectedColumnsKeys: ["total", "energy_per_request", "average", "slowest", "fastest", "rps"],
       columns: [
-        {key: "name", title: "Name"},
-        {key: "total", title: "Total", formatter: formatNanoUnit, props: {isNumber: true}},
-        {key: "average", title: "Average", formatter: formatNanoUnit, props: {isNumber: true}},
-        {key: "slowest", title: "Slowest", formatter: formatNanoUnit, props: {isNumber: true}},
-        {key: "fastest", title: "Fastest", formatter: formatNanoUnit, props: {isNumber: true}},
-        {key: "rps", title: "RPS", formatter: formatFloat, props: {isNumber: true}}        
+        { key: "name", title: "Name" },
+
+        { key: "total", title: "Total", formatter: formatNanoUnit, props: { isNumber: true } },
+        { key: "average", title: "Average", formatter: formatNanoUnit, props: { isNumber: true } },
+        { key: "slowest", title: "Slowest", formatter: formatNanoUnit, props: { isNumber: true } },
+        { key: "fastest", title: "Fastest", formatter: formatNanoUnit, props: { isNumber: true } },
+        { key: "rps", title: "RPS", formatter: formatFloat, props: { isNumber: true } },
+
+        { key: "energy_per_request", title: "Cosft of Request", formatter: formatMilliJoules, props: { isNumber: true } },
+        { key: "CPU", title: "Energy CPU", formatter: formatPower, props: { isNumber: true } },
+        { key: "DRAM", title: "Energy DRAM", formatter: formatPower, props: { isNumber: true } }
       ]
     }
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.props.reportStore.fetchReports(
       this.state.ordering, this.state.sort, this.state.page, this.state.projectId)
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     if ((prevProps.projectId === this.props.projectId) &&
       !this.props.reportStore.state.isFetching) {
       const currentList = this.props.reportStore.state.reports
@@ -55,21 +62,21 @@ class ReportList extends Component {
     }
   }
 
-  sort () {
+  sort() {
     const order = this.state.ordering === Order.ASC ? Order.DESC : Order.ASC
     this.props.reportStore.fetchReports(
       order, this.state.sort, this.state.page, this.state.projectId)
     this.setState({ ordering: order })
   }
 
-  compare () {
+  compare() {
     const selectedIds = Object.keys(this.state.selected)
     if (selectedIds.length === 2 && selectedIds[0] && selectedIds[1]) {
       this.props.history.push(`/compare/${selectedIds[0]}/${selectedIds[1]}`)
     }
   }
 
-  async deleteBulk () {
+  async deleteBulk() {
     const selectedIds = (Object.keys(this.state.selected)).map(v => Number.parseInt(v))
     const res = await this.props.reportStore.deleteReports(selectedIds)
     if (res && typeof res.deleted === 'number') {
@@ -79,7 +86,7 @@ class ReportList extends Component {
     }
   }
 
-  fetchPage (page) {
+  fetchPage(page) {
     if (page < 0) {
       page = 0
     }
@@ -90,7 +97,7 @@ class ReportList extends Component {
     this.setState({ page })
   }
 
-  onSelectAll (checked) {
+  onSelectAll(checked) {
     const { selected } = this.state
     const reports = this.props.reportStore.state.reports
     reports.forEach(report => {
@@ -104,7 +111,7 @@ class ReportList extends Component {
     this.setState({ selected, selectAllChecked: checked })
   }
 
-  onCheckChange (id, checked) {
+  onCheckChange(id, checked) {
     const { selected } = this.state
     if (checked) {
       selected[id] = checked
@@ -115,7 +122,7 @@ class ReportList extends Component {
     this.setState({ selected })
   }
 
-  render () {
+  render() {
     const { state: { reports, total } } = this.props.reportStore
 
     const totalPerPage = 20
@@ -133,7 +140,7 @@ class ReportList extends Component {
             <Heading size={600}>REPORTS</Heading>
           </Pane>
           <Pane>
-          <SelectMenu
+            <SelectMenu
               isMultiSelect
               hasFilter={false}
               hasTitle={false}
@@ -141,7 +148,7 @@ class ReportList extends Component {
                 const selected = [...this.state.selectedColumnsKeys, item.value];
                 const keys = this.state.columns.map(col => col.key);
                 selected.sort((a, b) => keys.indexOf(a) - keys.indexOf(b));
-                this.setState({ selectedColumnsKeys: selected  })
+                this.setState({ selectedColumnsKeys: selected })
               }}
               onDeselect={item => {
                 const selected = this.state.selectedColumnsKeys.filter(value => value != item.value)
@@ -149,7 +156,7 @@ class ReportList extends Component {
                 selected.sort((a, b) => keys.indexOf(a) - keys.indexOf(b));
                 this.setState({ selectedColumnsKeys: selected })
               }}
-              options={this.state.columns.map(col => ({label: col.title, value: col.key}))}
+              options={this.state.columns.map(col => ({ label: col.title, value: col.key }))}
               selected={this.state.selectedColumnsKeys}
             >
               <Button
@@ -241,13 +248,13 @@ class ReportList extends Component {
                 </Table.TextCell>
                 <Table.TextCell minWidth={280} textProps={{ size: 400 }}>
                   <RouterLink to={`/reports/${p.id}`}>
-                    {toLocaleString(p.date)} ({formatAgo(p.date)})
+                    {p.tags.language}
                   </RouterLink>
                 </Table.TextCell>
-                {selectedColumns.map(col => 
-                <Table.TextCell key={col.key} textProps={{ size: 400 }} {...col.props}>
-                  {col.formatter ? col.formatter(p[col.key]) : p[col.key]}
-                </Table.TextCell>
+                {selectedColumns.map(col =>
+                  <Table.TextCell key={col.key} textProps={{ size: 400 }} {...col.props}>
+                    {col.formatter ? col.formatter(p[col.key]) : p[col.key]}
+                  </Table.TextCell>
                 )}
                 <Table.TextCell
                   display='flex' textAlign='center' alignItems='center' maxWidth={80}

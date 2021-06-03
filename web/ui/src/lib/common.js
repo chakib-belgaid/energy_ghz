@@ -4,7 +4,7 @@ const Order = {
   DESC: 'DESC'
 }
 
-function getIconForOrder (order) {
+function getIconForOrder(order) {
   switch (order) {
     case Order.ASC:
       return 'sort-asc'
@@ -15,7 +15,7 @@ function getIconForOrder (order) {
   }
 }
 
-function getIconForStatus (status) {
+function getIconForStatus(status) {
   switch (status) {
     case 'OK':
     case 'ok':
@@ -25,7 +25,7 @@ function getIconForStatus (status) {
   }
 }
 
-function getColorForStatus (status) {
+function getColorForStatus(status) {
   switch (status) {
     case 'OK':
     case 'ok':
@@ -35,23 +35,47 @@ function getColorForStatus (status) {
   }
 }
 
-function formatFloat (val, fixed) {
+function formatFloat(val, fixed) {
   if (!Number.isInteger(fixed)) {
     fixed = 2
   }
 
+
   return Number.parseFloat(val).toFixed(fixed)
+
 }
 
-function formatNano (val) {
+
+function formatPower(val, fixed) {
+  if (!Number.isInteger(fixed)) {
+    fixed = 2
+  }
+
+
+  let x = Number.parseFloat(val).toFixed(fixed)
+  return `${x} W`
+
+}
+
+
+function formatMilliJoules(val, fixed) {
+  if (!Number.isInteger(fixed)) {
+    fixed = 3
+  }
+  let x = Number.parseFloat(val).toFixed(fixed)
+  return `${x} mJ`
+
+}
+
+function formatNano(val) {
   return Number.parseFloat(val / 1000000).toFixed(2)
 }
 
-function formatDiv (val, div) {
+function formatDiv(val, div) {
   return Number.parseFloat(val / div).toFixed(2)
 }
 
-function formatNanoUnit (val) {
+function formatNanoUnit(val) {
   let v = Number.parseFloat(val)
   if (Math.abs(v) < 10000) {
     return `${v} ns`
@@ -66,7 +90,9 @@ function formatNanoUnit (val) {
   return Number.parseFloat(valMs / 1000).toFixed(2) + ' s'
 }
 
-function pretty (value) {
+
+
+function pretty(value) {
   let v = value
   if (typeof v === 'string') {
     v = JSON.parse(value)
@@ -74,11 +100,11 @@ function pretty (value) {
   return JSON.stringify(v, null, 2)
 }
 
-function getRandomInt (max) {
+function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max))
 }
 
-function toLocaleString (date) {
+function toLocaleString(date) {
   if (date instanceof Date) {
     return date.toLocaleString
   }
@@ -87,7 +113,7 @@ function toLocaleString (date) {
   return dateObj.toLocaleString()
 }
 
-function getAppRoot () {
+function getAppRoot() {
   if (process.env.NODE_ENV !== 'production') {
     return 'http://localhost:3000'
   }
@@ -101,6 +127,8 @@ module.exports = {
   getColorForStatus,
   Order,
   formatFloat,
+  formatMilliJoules,
+  formatPower,
   formatNano,
   formatNanoUnit,
   pretty,

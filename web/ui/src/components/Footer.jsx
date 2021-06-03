@@ -4,10 +4,10 @@ import { Link as RouterLink } from 'react-router-dom'
 import GitHubIcon from './GitHubIcon'
 
 export default class Footer extends Component {
-  render () {
+  render() {
     return (
-      <Pane
-        borderTop
+      <Pane>
+        {/* borderTop
         background='tint2'
         alignItems='center'
         justifyContent='center'
@@ -27,7 +27,7 @@ export default class Footer extends Component {
           <RouterLink to='/about'>
             About
           </RouterLink>
-        </Paragraph>
+        </Paragraph> */}
       </Pane>
     )
   }

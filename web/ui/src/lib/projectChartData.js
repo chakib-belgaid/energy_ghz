@@ -4,7 +4,7 @@ import color from 'chartjs-color'
 import { colors } from './colors'
 import { formatFloat } from './common'
 
-function createChartData (reports) {
+function createChartData(reports) {
   let data = reports
 
   let unit = 'ns'
@@ -23,6 +23,7 @@ function createChartData (reports) {
   }
 
   const avgs = data.map(d => d.average / divr)
+  const energies = data.map(d => d.energy_per_request / divr)
   const fasts = data.map(d => d.fastest / divr)
   const slows = data.map(d => d.slowest / divr)
   const rps = data.map(d => d.rps)
@@ -46,20 +47,35 @@ function createChartData (reports) {
     .compact()
     .valueOf()
 
+  const fifty = _(data)
+    .map(r => {
+      const elem = _.find(r.latencyDistribution, ['percentage', 50])
+      if (elem) {
+        return elem.latency / divr
+      }
+    })
+    .compact()
+    .valueOf()
+
   const dates = data.map(d => d.date)
+  const languages = data.map(d => d.tags.language)
   return {
+
     averate: avgs,
+    energies: energies,
     fastest: fasts,
     slowest: slows,
     nine5: nine5,
     nine9: nine9,
+    fifty: fifty,
+    languages,
     rps,
     dates,
     unit
   }
 }
 
-function createLineChart (reports) {
+function createLineChart(reports) {
   if (!reports) {
     return
   }
@@ -67,15 +83,18 @@ function createLineChart (reports) {
   const chartData = createChartData(reports)
   const dates = chartData.dates
   const unit = chartData.unit
+  const languages = chartData.languages
   const avgData = []
+  const energyData = []
   const fastData = []
   const slowData = []
-  const n5Data = []
-  const n9Data = []
+  const n50Data = []
+  const n95Data = []
+  const n99Data = []
   const rpsData = []
 
-  dates.forEach((v, i) => {
-    const d = new Date(v)
+  languages.forEach((v, i) => {
+    const d = v
     avgData[i] = {
       x: d,
       y: formatFloat(chartData.averate[i])
@@ -88,11 +107,15 @@ function createLineChart (reports) {
       x: d,
       y: formatFloat(chartData.slowest[i])
     }
-    n5Data[i] = {
+    n50Data[i] = {
+      x: d,
+      y: formatFloat(chartData.fifty[i])
+    }
+    n95Data[i] = {
       x: d,
       y: formatFloat(chartData.nine5[i])
     }
-    n9Data[i] = {
+    n99Data[i] = {
       x: d,
       y: formatFloat(chartData.nine9[i])
     }
@@ -100,6 +123,11 @@ function createLineChart (reports) {
       x: d,
       y: formatFloat(chartData.rps[i])
     }
+    energyData[i] = {
+      x: d,
+      y: formatFloat(chartData.energies[i])
+    }
+
   })
 
   const cubicInterpolationMode = 'monotone' // set to 'default' to get cubic
@@ -145,11 +173,23 @@ function createLineChart (reports) {
       lineTension
     },
     {
+      label: 'median',
+      backgroundColor: color(colors.orange).alpha(0.5).lighten(0.5).rgbString(),
+      borderColor: colors.orange,
+      fill: false,
+      data: n50Data,
+      yAxisID: 'y-axis-lat',
+      cubicInterpolationMode,
+      borderWidth,
+      pointRadius,
+      lineTension
+    },
+    {
       label: '95th',
       backgroundColor: color(colors.orange).alpha(0.5).lighten(0.5).rgbString(),
       borderColor: colors.orange,
       fill: false,
-      data: n5Data,
+      data: n95Data,
       yAxisID: 'y-axis-lat',
       cubicInterpolationMode,
       borderWidth,
@@ -161,7 +201,7 @@ function createLineChart (reports) {
       backgroundColor: color(colors.purple).alpha(0.5).lighten(0.5).rgbString(),
       borderColor: colors.purple,
       fill: false,
-      data: n9Data,
+      data: n99Data,
       yAxisID: 'y-axis-lat',
       cubicInterpolationMode,
       borderWidth,
@@ -185,20 +225,20 @@ function createLineChart (reports) {
   const labelStr = `Latency (${unit})`
 
   var config = {
-    type: 'line',
+    type: 'bar',
     data: {
-      labels: dates,
+      labels: languages,
       datasets: datasets
     },
     options: {
       responsive: true,
       title: {
         display: true,
-        text: 'Change Over Time'
+        text: 'Comparaison of multiple languages'
       },
       tooltips: {
         mode: 'index',
-        intersect: false
+        intersect: true
       },
       hover: {
         mode: 'nearest',
@@ -210,9 +250,9 @@ function createLineChart (reports) {
             display: true,
             scaleLabel: {
               display: true,
-              labelString: 'Date'
+              labelString: 'Benchmark'
             },
-            type: 'time'
+
           }
         ],
         yAxes: [
@@ -246,6 +286,9 @@ function createLineChart (reports) {
 
   return config
 }
+
+
+
 
 module.exports = {
   createChartData,

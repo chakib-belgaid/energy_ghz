@@ -35,7 +35,6 @@ async function createData () {
   reportFiles.forEach(async fileName => {
 
     const rf = path.join(__dirname, folder, fileName)
-
     try {
       if (!rf) {
         return
@@ -55,11 +54,11 @@ async function createData () {
       console.log(rf)
       const content = fs.readFileSync(rf, 'utf8')
       const data = JSON.parse(content)
-      const date = new Date()
-      date.setMonth(MONTH)
-      date.setDate(n)
-      date.setHours(h)
-      data.date = date.toISOString()
+      // const date = new Date()
+      // date.setMonth(MONTH)
+      // date.setDate(n)
+      // date.setHours(h)
+      // data.date = date.toISOString()
       const status = await doPost(data)
       console.log('done: ' + status)
     } catch (e) {
@@ -73,8 +72,8 @@ function doPost (data) {
     const postData = JSON.stringify(data)
 
     const options = {
-      hostname: 'localhost',
-      port: 3000,
+      hostname: '127.0.0.1',
+      port: 80,
       path: `/api/projects/${projectId}/ingest`,
       method: 'POST',
       headers: {
@@ -103,7 +102,9 @@ function doPost (data) {
 
     req.write(postData);
     req.end()
+
   })
+  
 }
 
 function arrayShuffle(array) {

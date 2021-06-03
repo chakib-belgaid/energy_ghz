@@ -172,6 +172,7 @@ func convertIngestToReport(pid uint, ir *IngestRequest) *model.Report {
 	r.EndReason = ir.EndReason.String()
 
 	r.Date = ir.Date
+	r.Language = ir.Language
 
 	r.Count = ir.Count
 	r.Total = ir.Total
@@ -179,6 +180,14 @@ func convertIngestToReport(pid uint, ir *IngestRequest) *model.Report {
 	r.Fastest = ir.Fastest
 	r.Slowest = ir.Slowest
 	r.Rps = ir.Rps
+
+	r.Valid = ir.Valid
+	r.TotalEnergy = ir.TotalEnergy
+	r.EnergyCPUReq = ir.EnergyCPUReq
+	r.EnergyDramReq = ir.EnergyDramReq
+	r.EnergyReq = ir.EnergyReq
+	r.DRAM = ir.DRAM
+	r.CPU = ir.CPU
 
 	r.ErrorDist = ir.ErrorDist
 
@@ -194,7 +203,7 @@ func convertIngestToReport(pid uint, ir *IngestRequest) *model.Report {
 	// status
 	r.Status = model.StatusOK
 
-	if len(r.ErrorDist) > 0 {
+	if (r.Valid < 0) {
 		r.Status = model.StatusFail
 	}
 

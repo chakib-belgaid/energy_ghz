@@ -117,6 +117,7 @@ type Report struct {
 	Name      string    `json:"name,omitempty"`
 	EndReason string    `json:"endReason,omitempty"`
 	Date      time.Time `json:"date"`
+	Language  string    `json:"tags.laungage"`
 
 	Count   uint64        `json:"count"`
 	Total   time.Duration `json:"total"`
@@ -124,6 +125,15 @@ type Report struct {
 	Fastest time.Duration `json:"fastest"`
 	Slowest time.Duration `json:"slowest"`
 	Rps     float64       `json:"rps"`
+
+	Valid         int64  `json:"validated_requests"`
+	TotalEnergy   float64 `json:"total_energy"`
+	EnergyCPUReq  float64 `json:"energy_CPU_equest"`
+	EnergyDramReq float64 `json:"energy_DRAM_request"`
+	EnergyReq     float64 `json:"energy_per_request"`
+
+	DRAM 		  float64 `json:"DRAM"`
+	CPU           float64 `json:"CPU"`
 
 	Status Status `json:"status" gorm:"not null"`
 
