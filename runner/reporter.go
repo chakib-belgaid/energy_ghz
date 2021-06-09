@@ -65,7 +65,7 @@ type Options struct {
 	DialTimeout   time.Duration `json:"dial-timeout,omitempty"`
 	KeepaliveTime time.Duration `json:"keepalive,omitempty"`
 
-	Data     interface{}        `json:"data,omitempty"`
+	Data     interface{}        `json:"-"`
 	Binary   bool               `json:"binary"`
 	Metadata *map[string]string `json:"metadata,omitempty"`
 
@@ -92,21 +92,20 @@ type Report struct {
 	Slowest time.Duration `json:"slowest"`
 	Rps     float64       `json:"rps"`
 
-	Valid         int64  `json:"validated_requests"`
+	Valid         int64   `json:"validated_requests"`
 	TotalEnergy   float64 `json:"total_energy"`
 	EnergyCPUReq  float64 `json:"energy_CPU_request"`
 	EnergyDramReq float64 `json:"energy_DRAM_request"`
 	EnergyReq     float64 `json:"energy_per_request"`
-	DRAM 		  float64 `json:"DRAM"`
-	CPU 		  float64 `json:"CPU"`
-
+	DRAM          float64 `json:"DRAM"`
+	CPU           float64 `json:"CPU"`
 
 	ErrorDist      map[string]int `json:"errorDistribution"`
 	StatusCodeDist map[string]int `json:"statusCodeDistribution"`
 
 	LatencyDistribution []LatencyDistribution `json:"latencyDistribution"`
 	Histogram           []Bucket              `json:"histogram"`
-	Details             []ResultDetail        `json:"details"`
+	Details             []ResultDetail        `json:"-"`
 
 	Tags map[string]string `json:"tags,omitempty"`
 }

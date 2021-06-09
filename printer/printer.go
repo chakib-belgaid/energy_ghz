@@ -43,7 +43,27 @@ func (rp *ReportPrinter) Print(format string) error {
 
 	switch format {
 	case "summary", "csv":
+
 		outputTmpl := defaultTmpl
+		// buf := &bytes.Buffer{}
+		// templ := template.Must(template.New("tmpl").Funcs(tmplFuncMap).Parse(outputTmpl))
+		// if err := templ.Execute(buf, *rp.Report); err != nil {
+		// 	return err
+		// }
+		rep, err := json.Marshal(*rp.Report)
+		if err != nil {
+			return err
+		}
+
+		var out bytes.Buffer
+		err = json.Indent(&out, rep, "", "  ")
+		if err != nil {
+			return err
+		}
+
+		rep = out.Bytes()
+		fmt.Print(string(rep))
+
 		if format == "csv" {
 			outputTmpl = csvTmpl
 		}
