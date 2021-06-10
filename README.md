@@ -1,43 +1,24 @@
-<div align="center">
-	<br>
-	<img src="green_fwd2.svg" alt="Logo" width="100">
-	<br>
-</div>
 
-# ghz
+# energy_ghz
+This is a modifed version of to the client ghz to be used in the project [energy_benchmarking_grpc](https://github.com/chakib-belgaid/energy_benchmarking_grpc)
 
-[![Release](https://img.shields.io/github/release/bojand/ghz.svg?style=flat-square)](https://github.com/bojand/ghz/releases/latest)
-![Build Status](https://github.com/bojand/ghz/workflows/build/badge.svg)
-[![Go Report Card](https://goreportcard.com/badge/github.com/bojand/ghz?style=flat-square)](https://goreportcard.com/report/github.com/bojand/ghz)
-[![License](https://img.shields.io/github/license/bojand/ghz.svg?style=flat-square)](https://raw.githubusercontent.com/bojand/ghz/master/LICENSE)
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg?style=flat-square)](https://www.paypal.me/bojandj)
-[![Buy me a coffee](https://img.shields.io/badge/buy%20me-a%20coffee-orange.svg?style=flat-square)](https://www.buymeacoffee.com/bojand)
+If you want to use the main proram you can find it in the [original repository](https://github.com/bojand/ghz) 
 
 [gRPC](http://grpc.io/) benchmarking and load testing tool.
 
 ## Documentation
 
-All documentation at [ghz.sh](https://ghz.sh).
+All origianl  documentation at [ghz.sh](https://ghz.sh).
 
 ## Install
 
-### Download
-
-1. Download a prebuilt executable binary for your operating system from the [GitHub releases page](https://github.com/bojand/ghz/releases).
-2. Unzip the archive and place the executable binary wherever you would like to run it from. Additionally consider adding the location directory in the `PATH` variable if you would like the `ghz` command to be available everywhere.
-
-### Homebrew
-
-```sh
-brew install ghz
-```
 
 ### Compile
 
 **Clone**
 
 ```sh
-git clone https://github.com/bojand/ghz
+git clone https://github.com/chakib-belgaid/energy_ghz
 ```
 
 **Build using make**
@@ -52,6 +33,22 @@ make build
 cd cmd/ghz
 go build .
 ```
+
+## Changes 
+
+Those are the changes made to the original one 
+- **ADD** : 
+    - Energy metrics in the json file 
+    - Energy values in the web appliaction 
+    - timestamp in the csv file 
+    - *New output Mode* **Seperate** : it will generate a file .csv and print the summary in a json format in the standart output 
+- **Remove** : 
+    - Data file from JSON 
+
+## TODO 
+-[ ]: extend the limit of the recording to more than 1 million request 
+-[ ]: include the energy module directly to the output 
+
 
 ## Usage
 
@@ -164,6 +161,7 @@ OPEN_COVERAGE=1 make cover # open code coverage.html after running
 ```
 
 ## Credit
+Original project by [bojand](https://github.com/bojand/ghz)
 
 Icon made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>
 

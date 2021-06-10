@@ -36,13 +36,14 @@ type ReportPrinter struct {
 // 		html
 // 		influx-summary
 // 		influx-details
+// 		Seperate
 func (rp *ReportPrinter) Print(format string) error {
 	if format == "" {
 		format = "summary"
 	}
 
 	switch format {
-	case "summary", "csv":
+	case "seperate":
 
 		outputTmpl := defaultTmpl
 		// buf := &bytes.Buffer{}
@@ -54,16 +55,24 @@ func (rp *ReportPrinter) Print(format string) error {
 		if err != nil {
 			return err
 		}
-
 		var out bytes.Buffer
 		err = json.Indent(&out, rep, "", "  ")
 		if err != nil {
 			return err
 		}
-
 		rep = out.Bytes()
 		fmt.Print(string(rep))
 
+		outputTmpl = csvTmpl
+		buf := &bytes.Buffer{}
+		templ := template.Must(template.New("tmpl").Funcs(tmplFuncMap).Parse(outputTmpl))
+		if err := templ.Execute(buf, *rp.Report); err != nil {
+			return err
+		}
+
+		return rp.print(buf.String())
+	case "summary", "csv":
+		outputTmpl := defaultTmpl
 		if format == "csv" {
 			outputTmpl = csvTmpl
 		}
