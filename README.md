@@ -46,8 +46,8 @@ Those are the changes made to the original one
     - Data file from JSON 
 
 ## TODO 
--[ ]: extend the limit of the recording to more than 1 million request 
--[ ]: include the energy module directly to the output 
+- [ ] extend the limit of the recording to more than 1 million request 
+- [ ] include the energy module directly to the output 
 
 
 ## Usage
