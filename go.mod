@@ -1,4 +1,4 @@
-module github.com/bojand/ghz
+module github.com/chakib-belgaid/energy_ghz
 
 go 1.14
 
